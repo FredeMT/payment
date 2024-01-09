@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: ead-payment-service
+  profiles:
+    active: dev
