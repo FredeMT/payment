@@ -12,7 +12,7 @@ public class PaymentCommandPublisher {
     @Autowired
     RabbitTemplate rabbitTemplate;
 
-    @Value(value = "${ead.broker.exchange.paymentCommandExchange")
+    @Value(value = "${ead.broker.exchange.paymentCommandExchange}")
     private String paymentCommandExchange;
 
     @Value(value = "${ead.broker.key.paymentCommandKey}")

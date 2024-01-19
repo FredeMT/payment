@@ -9,7 +9,9 @@ import com.ead.payment.models.UserModel;
 import com.ead.payment.publishers.PaymentCommandPublisher;
 import com.ead.payment.repositories.CreditCardRepository;
 import com.ead.payment.repositories.PaymentRepository;
+import com.ead.payment.repositories.UserRepository;
 import com.ead.payment.services.PaymentService;
+import com.ead.payment.services.PaymentStripeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +40,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     PaymentCommandPublisher paymentCommandPublisher;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PaymentStripeService paymentStripeService;
 
     public PaymentModel requestPayment(PaymentRequestDto paymentRequestDto, UserModel userModel) {
         var creditCardModel = new CreditCardModel();
@@ -87,5 +95,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Optional<PaymentModel> findPaymentByUser(UUID userId, UUID paymentId) {
         return  paymentRepository.findPaymentByUser(userId, paymentId);
+    }
+
+    @Transactional
+    @Override
+    public void makePayment(PaymentCommandDto paymentCommandDto) {
+        var paymentModel = paymentRepository.findById(paymentCommandDto.getPaymentId()).get();
+        var userModel = userRepository.findById(paymentCommandDto.getUserId()).get();
+        var creditCardModel = creditCardRepository.findById(paymentCommandDto.getCardId()).get();
+        paymentModel = paymentStripeService.processStripePayment(paymentModel,creditCardModel);
     }
 }
