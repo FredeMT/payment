@@ -8,6 +8,7 @@ import com.ead.payment.models.CreditCardModel;
 import com.ead.payment.models.PaymentModel;
 import com.ead.payment.models.UserModel;
 import com.ead.payment.publishers.PaymentCommandPublisher;
+import com.ead.payment.publishers.PaymentEventPublisher;
 import com.ead.payment.repositories.CreditCardRepository;
 import com.ead.payment.repositories.PaymentRepository;
 import com.ead.payment.repositories.UserRepository;
@@ -47,6 +48,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     PaymentStripeService paymentStripeService;
+
+    @Autowired
+    PaymentEventPublisher paymentEventPublisher;
 
     public PaymentModel requestPayment(PaymentRequestDto paymentRequestDto, UserModel userModel) {
         var creditCardModel = new CreditCardModel();
@@ -120,6 +124,12 @@ public class PaymentServiceImpl implements PaymentService {
         }
         userRepository.save(userModel);
 
-        //send event
+        if(paymentModel.getPaymentControl().equals(PaymentControl.EFFECTED) ||
+                paymentModel.getPaymentControl().equals(PaymentControl.REFUSED)){
+            paymentEventPublisher.publishPaymentEvent(paymentModel.convertToPaymentEventDto());
+        } else if(paymentModel.getPaymentControl().equals(PaymentControl.ERROR)) {
+            //retry process and limits retry.
+        }
     }
-}
+    }
+
