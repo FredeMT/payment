@@ -2,7 +2,7 @@ package com.ead.payment.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
 
